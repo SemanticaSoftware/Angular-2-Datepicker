@@ -210,14 +210,9 @@ interface ValidationResult {
     <md-input-container>
       <input mdInput
         [disabled]="disabled"
-        class="datepicker__input"
         [placeholder]="placeholder"
-        [ngStyle]="{'color': altInputStyle ? colors['white'] : colors['black'],
-                    'background-color': altInputStyle ? accentColor : colors['white'],
-                    'border': altInputStyle ? '' : '1px solid #dadada'}"
-        (click)="onInputClick()"
+        (focus)="onInputClick()"
         [(ngModel)]="inputText"
-        readonly="true"
       >
       </md-input-container>
       <div
@@ -704,7 +699,7 @@ export class DatepickerComponent implements OnInit, OnChanges {
   inRangeValidator(control: FormControl): ValidationResult {
     const value = control.value;
 
-    if (this.currentMonthNumber) {
+    if (this.currentMonthNumber !== null) {
       const tentativeDate = new Date(+value, this.currentMonthNumber);
       if (this.rangeStart && tentativeDate.getTime() < this.rangeStart.getTime()) {
         return { 'yearBeforeRangeStart': true };
@@ -723,7 +718,7 @@ export class DatepickerComponent implements OnInit, OnChanges {
   */
   yearValidator(control: FormControl): ValidationResult {
     const value = control.value;
-    const valid = !isNaN(value) && value >= 1970 && Math.floor(value) === +value;
+    const valid = !isNaN(value) && value >= 1900 && Math.floor(value) === +value;
     if (valid) {
       return null;
     }
