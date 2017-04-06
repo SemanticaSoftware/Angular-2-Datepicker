@@ -207,7 +207,8 @@ interface ValidationResult {
       class="datepicker"
       [ngStyle]="{'font-family': fontFamily}"
     >
-      <input
+    <md-input-container>
+      <input mdInput
         [disabled]="disabled"
         class="datepicker__input"
         [placeholder]="placeholder"
@@ -218,6 +219,7 @@ interface ValidationResult {
         [(ngModel)]="inputText"
         readonly="true"
       >
+      </md-input-container>
       <div
         class="datepicker__calendar"
         *ngIf="showCalendar"
