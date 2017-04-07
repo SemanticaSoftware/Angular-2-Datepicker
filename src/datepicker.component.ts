@@ -47,7 +47,7 @@ interface ValidationResult {
         position: absolute;
         overflow: hidden;
         z-index: 1000;
-        top: 1.9em;
+        top: 2.9em;
         left: 0;
         height: 23.8em;
         width: 20.5em;
@@ -209,10 +209,11 @@ interface ValidationResult {
     >
     <md-input-container>
       <input mdInput
-        [disabled]="disabled"
         [placeholder]="placeholder"
         (focus)="onInputClick()"
         [(ngModel)]="inputText"
+        readonly="true"
+        
       >
       </md-input-container>
       <div
@@ -309,6 +310,7 @@ interface ValidationResult {
     </div>
     `
 })
+
 export class DatepickerComponent implements OnInit, OnChanges {
   private readonly DEFAULT_FORMAT = 'YYYY-MM-DD';
 
@@ -344,6 +346,7 @@ export class DatepickerComponent implements OnInit, OnChanges {
   @Input() dayNames: Array<String> = ['S', 'M', 'T', 'W', 'T', 'F', 'S']; // Default order: firstDayOfTheWeek = 0
   @Input() hoveredDay: Date;
   @Input() months: Array<string>;
+
   dayNamesOrdered: Array<String>;
   calendar: Calendar;
   currentMonthNumber: number;
