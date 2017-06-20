@@ -1,8 +1,8 @@
 import {
   animate, Component, ElementRef, EventEmitter, Input, keyframes, OnChanges,
-  OnInit, Output, Renderer, SimpleChange, state, style, transition, trigger
+  OnInit, Output, Renderer, SimpleChange, state, style, transition, trigger, ChangeDetectorRef
 } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { FormControl, Validators, AbstractControl } from '@angular/forms';
 
 import { Calendar } from './calendar';
 import * as moment from 'moment';
@@ -37,6 +37,7 @@ interface ValidationResult {
   ],
   styles: [
     `.datepicker {
+        width:100%;
         position: relative;
         display: inline-block;
         color: #2b2b2b;
@@ -207,13 +208,14 @@ interface ValidationResult {
       class="datepicker"
       [ngStyle]="{'font-family': fontFamily}"
     >
-    <md-input-container>
+    <md-input-container dividerColor="{{ divider }}" style="width: 100%;">
       <input mdInput
-        [placeholder]="placeholder"
+        placeholder="{{ placeholder }}{{ isRequired ? '*' : ''}}"
         (focus)="onInputClick()"
+        (blur)="onBlur()"
         [(ngModel)]="inputText"
         readonly="true"
-        
+        [formControl]="control"
       >
       </md-input-container>
       <div
@@ -247,6 +249,7 @@ interface ValidationResult {
               [formControl]="yearControl"
               (keyup.enter)="yearInput.blur()"
               (blur)="onYearSubmit()"
+              (keydown.Tab)="onTabKeyDown()"
             />
           </div>
           <div
@@ -325,6 +328,7 @@ export class DatepickerComponent implements OnInit, OnChanges {
   }
   // api bindings
   @Input() disabled: boolean;
+  @Input() isRequired: boolean;
   @Input() accentColor: string;
   @Input() altInputStyle: boolean;
   @Input() dateFormat: string | DateFormatFunction;
@@ -340,12 +344,15 @@ export class DatepickerComponent implements OnInit, OnChanges {
   @Input() weekStart: number = 0;
   // events
   @Output() onSelect = new EventEmitter<Date>();
+  @Output() focus: EventEmitter<any> = new EventEmitter<any>();
+  @Output() blur: EventEmitter<any> = new EventEmitter<any>();
   // time
   @Input() calendarDays: Array<number>;
   @Input() currentMonth: string;
   @Input() dayNames: Array<String> = ['S', 'M', 'T', 'W', 'T', 'F', 'S']; // Default order: firstDayOfTheWeek = 0
   @Input() hoveredDay: Date;
   @Input() months: Array<string>;
+
 
   dayNamesOrdered: Array<String>;
   calendar: Calendar;
@@ -359,9 +366,10 @@ export class DatepickerComponent implements OnInit, OnChanges {
   clickListener: Function;
   // forms
   yearControl: FormControl;
+  control: AbstractControl;
+  divider: string;
 
-
-  constructor(private renderer: Renderer, private elementRef: ElementRef) {
+  constructor(private renderer: Renderer, private elementRef: ElementRef, private cdRef: ChangeDetectorRef) {
     this.dateFormat = this.DEFAULT_FORMAT;
     // view logic
     this.showCalendar = false;
@@ -397,6 +405,27 @@ export class DatepickerComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
+    this.control = new FormControl();
+		if(this.isRequired){
+			this.control.setValidators(Validators.required);
+			this.control.updateValueAndValidity();
+		}
+		if(this.disabled){
+			this.control.disable();
+		}
+		this.divider = 'primary';
+		this.control.valueChanges.subscribe(res => {
+			if(this.isRequired){
+				if(this.control.hasError('required')){
+					this.divider = 'warn';
+					this.cdRef.detectChanges();
+				}
+				else if(!this.control.hasError('required')){
+					this.divider = 'primary';
+					this.cdRef.detectChanges();
+				}
+			}
+		});
     this.updateDayNames();
     this.syncVisualsWithDate();
   }
@@ -408,11 +437,36 @@ export class DatepickerComponent implements OnInit, OnChanges {
     if (changes['firstDayOfTheWeek'] || changes['dayNames']) {
       this.updateDayNames();
     }
+    if(changes['disabled'] && !changes['disabled'].isFirstChange()){
+			if(this.disabled){
+				this.control.disable();
+			}
+			else{
+				this.control.enable();
+			}
+		}
+		if(changes['isRequired'] && !changes['isRequired'].isFirstChange()){
+			if(this.isRequired){
+				this.control.setValidators(Validators.required);
+				if(!this.control.value){
+					this.divider = 'warn';
+				}
+			}
+			else{
+				this.control.clearValidators();
+			}
+			this.control.markAsTouched();
+			this.control.updateValueAndValidity();
+		}
   }
 
   ngOnDestroy() {
     this.clickListener();
   }
+
+  onTabKeyDown(): void{
+		this.closeCalendar();
+	}
 
   // -------------------------------------------------------------------------------- //
   // -------------------------------- State Management ------------------------------ //
@@ -589,9 +643,15 @@ export class DatepickerComponent implements OnInit, OnChanges {
   * Toggles the calendar when the date input is clicked
   */
   onInputClick(): void {
-    this.showCalendar = !this.showCalendar;
+    if(!this.disabled){
+      this.showCalendar = !this.showCalendar;
+    }
+    this.focus.emit();
   }
 
+  onBlur(): void{
+    this.blur.emit();
+  }
   /**
   * Returns the font color for a day
   */
