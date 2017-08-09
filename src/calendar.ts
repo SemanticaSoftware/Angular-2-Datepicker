@@ -14,8 +14,8 @@ export class Calendar {
     }
 
     monthDates(year: any, month: any, dayFormatter:any = null, weekFormatter:any = null) {
-        if ((typeof year !== "number") || (year < 1970)) {
-            throw ('year must be a number >= 1970');
+        if ((typeof year !== "number") || (year < 1900)) {
+            throw ('year must be a number >= 1900');
         };
         if ((typeof month !== "number") || (month < 0) || (month > 11)) {
             throw ('month must be a number (Jan is 0)');

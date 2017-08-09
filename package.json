@@ -1,7 +1,7 @@
 {
-  "name": "angular2-material-datepicker",
-  "version": "1.0.0",
-  "author": "Kevin O'Leary",
+  "name": "semantica-material-datepicker",
+  "version": "1.0.1",
+  "author": "Dennis",
   "license": "MIT",
   "keywords": [
     "angular2",
@@ -37,11 +37,7 @@
     "tslint": "^4.0.2",
     "typescript": "^2.0.10",
     "zone.js": "^0.6.25"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/koleary94/Angular-2-Datepicker"
-  },
+  },  
   "scripts": {
     "start": "tsc && concurrently \"tsc -w\" \"lite-server\" ",
     "lint": "tslint ./src/datepicker.*.ts -t verbose",
