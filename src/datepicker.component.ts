@@ -177,7 +177,7 @@ interface ValidationResult {
         display: inline-block;
         width: 3em;
         padding: 2px 4px;
-        border: 1px solid #ffffff;
+        border: 1px solid #c1c1c1;
         border-radius: 2px;
         font-size: 1em;
         transition: 0.32s;
