@@ -520,7 +520,11 @@ export class DatepickerComponent implements OnInit, OnChanges {
     if (this.date) {
       this.setInputText(this.date);
       this.setCurrentValues(this.date);
-    } else {
+    }
+    else if(this.rangeEnd && this.date && this.rangeEnd < this.date || this.rangeEnd && !this.date && this.rangeEnd < new Date()){
+      this.setCurrentValues(this.rangeEnd);
+    } 
+    else {
       this.inputText = '';
       this.setCurrentValues(new Date());
     }
@@ -592,7 +596,7 @@ export class DatepickerComponent implements OnInit, OnChanges {
     let newDate = new Date(newYear, newMonth);
     let newDateValid: boolean;
     if (direction === 'left') {
-      newDateValid = !this.rangeStart || newDate.getTime() >= this.rangeStart.getTime();
+      newDateValid = !this.rangeStart || newDate.getTime() >= this.rangeStart.getTime() || (newDate.getFullYear() == this.rangeStart.getFullYear() && newDate.getMonth() == this.rangeStart.getMonth());
     } else if (direction === 'right') {
       newDateValid = !this.rangeEnd || newDate.getTime() <= this.rangeEnd.getTime();
     }
