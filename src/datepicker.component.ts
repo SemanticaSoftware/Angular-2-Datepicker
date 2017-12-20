@@ -353,6 +353,7 @@ export class DatepickerComponent implements OnInit, OnChanges {
   @Input() hoveredDay: Date;
   @Input() months: Array<string>;
 
+  @Input() clear: boolean;
 
   dayNamesOrdered: Array<String>;
   calendar: Calendar;
@@ -432,6 +433,9 @@ export class DatepickerComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: { [propertyName: string]: SimpleChange }) {
     if ((changes['date'] || changes['dateFormat'])) {
+      this.syncVisualsWithDate();
+    }
+    if(changes['clear'] && this.clear){
       this.syncVisualsWithDate();
     }
     if (changes['firstDayOfTheWeek'] || changes['dayNames']) {
@@ -517,7 +521,11 @@ export class DatepickerComponent implements OnInit, OnChanges {
   * Visually syncs calendar and input to selected date or current day
   */
   syncVisualsWithDate(): void {
-    if (this.date) {
+    if(this.clear){
+      this.inputText = '';
+      this.setCurrentValues(new Date());
+    }
+    else if (this.date) {
       this.setInputText(this.date);
       this.setCurrentValues(this.date);
     }
